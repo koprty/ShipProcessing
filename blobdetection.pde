@@ -1,11 +1,4 @@
-//EDGE DETECTION CAM
-//NOTE: just be careful... if you reopen the cam and take pics, they might overwrite past pics taken by the cam...
-/*
-E= edge detection 
-P= pencil (requires e to be pressed)
-C= colored pencil (requires p to be pressed
-
-*/
+// Blob detection 
 import ddf.minim.*;
 import processing.video.*;
 
@@ -17,16 +10,16 @@ boolean edge, pencil, colorpencil = false; // edge techniques
 final String end=".png";
 Minim minim;
 AudioPlayer player;
-final int THRESHOLD = 35;
+final int THRESHOLD = 12;
 float[][][] orig;
-
+boolean[] unchecked;
+color blobcolor;
 
 void setup(){
- size (640, 500);
- 
- orig = new float[width][height][3];
- 
- String[] cameras = Capture.list();
+  size(600,600);
+  orig = new float[width][height][3];
+  unchecked = new boolean[width*height];
+  String[] cameras = Capture.list();
  filename = "pic-";
  num = 1;
  
@@ -57,10 +50,7 @@ void draw(){
   
   image(cam,0,0);  
   
-  // The following does the same, and is faster when just drawing the image
-  // without any additional resizing, transformations, or tint.
-  //set(0, 0, cam);
-  if (edge || pencil || colorpencil){
+  if (edge){
     loadPixels();
     for (int i = 1; i < width-1; i++){
      for (int j = 1; j < height-1; j++){
@@ -82,41 +72,92 @@ void draw(){
        value = (reds + greens + blues)/3;
        if(value > THRESHOLD){
          //set(i,j,color(255));   // pencil mode-> set is the slower way to set pixels
-         if (pencil || colorpencil){
+         if (pencil){
              if (colorpencil)
                pixels[j*width+i] = color(orig[i][j][0],orig[i][j][1],orig[i][j][2]);//colorpencil 
              else
-               pixels[j*width+i] = color(0);//pencil    
+               pixels[j*width+i] = color(0);//pencil 
          }
          else  
            pixels[j*width+i] = color(255); 
-       }      
+       }  
        else{
-         if (pencil || colorpencil){
+         if (pencil)
            pixels[j*width+i] = color(255); //pencil shading
-         }else
+         else
            pixels[j*width+i] = color(0); //black with white edges
+         
        }
       }
-   
-      updatePixels();
     }
+    updatePixels();
   }
- 
+
+
   
+  if (mousePressed){
+    loadPixels();
+    for (int i = 1; i < width-1; i++){
+     for (int j = 1; j < height-1; j++){
+      orig[i][j][0] = pixels[j*width+i] >> 16 & 0xFF; // red via bit masking which makes it quicker
+      orig[i][j][1] = pixels[j*width+i] >> 8 & 0xFF;     //green via bit masking which makes it quicker
+      orig[i][j][2] = pixels[j*width+i] & 0xFF;    //blue via bit masking which makes it quicker    
+     }
+    }
+    
+    int x = mouseX;
+    int y= mouseY;
+    blobcolor = color(orig[x][y][0],orig[x][y][1],orig[x][y][2]);
+    //pixels[y*width+x];
+    fill(x,y);
+    
+  }
 }
 
-void keyPressed(){
-  if (key == ' '){
-      int mill = millis();
-      cam.stop();
-      saveFrame(filename+num+end);
-      
-      //while (millis()-mill<80){}
-      cam.start();
-      num++;
+void fill(int x, int y){
+  if (unchecked[y*width +x] && x < width-1 || x>0 || y<height-1 || y>0){
+  
+  //calculating number to be compared to the threshold
+       float value;
+       float blues, reds, greens;
+       reds=sqrt(sq(orig[x-1][y][0] - orig[x+1][y][0]) + sq(orig[x][y-1][0] - orig[x][y+1][0])); 
+       blues=sqrt(sq(orig[x-1][y][1] - orig[x+1][y][1]) + sq(orig[x][y-1][1] - orig[x][y+1][1]));
+       greens=sqrt(sq(orig[x-1][y][2] - orig[x+1][y][2]) + sq(orig[x][y-1][2] - orig[x][y+1][2]));
+       value = (reds + greens + blues)/3;
+       if(value <  THRESHOLD){
+          pixels[y*width+x] = blobcolor; 
+          unchecked[y*width+x]=false; 
+          fill(x-1,y);
+          fill(x,y-1);
+          fill(x,y+1);
+          fill(x+1,y);
+       }
   }
-   if (key== 's' || key == 'S'){
+}
+void keyPressed(){
+  if (key =='e' || key == 'E'){
+    if (edge){
+      edge = false;
+    }else{
+      edge = true;
+    }
+  }
+  if (edge && key=='p' || key =='P'){
+    if (pencil){
+      pencil = false;
+    }
+    else{
+      pencil = true;
+    }
+  }
+  if (pencil && key =='c' || key == 'C'){
+    if (colorpencil)
+      colorpencil = false;
+    else
+      colorpencil = true;
+  }
+  
+  if (key== 's' || key == 'S'){
       System.out.println("sadf");      
       cam.stop();      
       if (stopped){
@@ -128,31 +169,17 @@ void keyPressed(){
          stopped = true;
       }
     }
-    
-  if (key =='e' || key == 'E'){
-    if (edge){
-      edge = false;
-    }else{
-      edge = true;
-    }
+ 
+  if (key ==' ' ){
+      int mill = millis();
+      cam.stop();
+      saveFrame(filename+num+end);
+      
+      //while (millis()-mill<80){}
+      cam.start();
+      num++;
   }
-  if (key=='p' || key =='P'){
-    if (pencil){
-      pencil = false;
-    }
-    else{
-      pencil = true;
-    }
-  }
-  if (key =='c' || key == 'C'){
-    if (colorpencil)
-      colorpencil = false;
-    else
-      colorpencil = true;
-  }
-    if (key == 'q' || key == 'Q'){
-    edge = false;
-    colorpencil = false;
-    pencil = false;
-    }
 }
+  
+  
+
