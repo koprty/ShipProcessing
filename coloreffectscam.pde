@@ -16,7 +16,8 @@ String filename;
 int num;
 boolean stopped;
 boolean edge, pencil, colorpencil = false; // edge techniques
-boolean sepia,gray = false;
+boolean sepia;
+boolean gray = false;
 final String end=".png";
 final int THRESHOLD = 35;
 float[][][] ori;
@@ -133,24 +134,17 @@ void draw(){
     else if (sepia){   
         for (int i = 0; i < width; i++){
           for (int j = 0; j < height; j++){
-            colorMode(HSB);
-            pixels[j*width+i] = color(hue(pixels[j*width+i]),saturation(pixels[j*width+i]),brightness(pixels[j*width+i])+10);
+
             colorMode(RGB);   
-            tint(128);
+            
             float r = red( pixels[j*width+i]);
             float g = green( pixels[j*width+i]);     
             float b = blue( pixels[j*width+i]);
             
-          
-            float newr = .69 * r + .769 * g + .189 * b;        
-            float newg = .349 * r + .686 * g + .168 * b;
-            float newb= .270 * r + .534 * g + .131 * b;
-            /*
-            
-            float newr = .393 * r + .769 * g + .189 * b;        
-            float newg = .349 * r + .686 * g + .168 * b;
-            float newb = .272 * r + .534 * g + .131 * b;
-            */
+            float newr = .623 * r + .769 * g + .189 * b;        
+            float newg = .339 * r + .686 * g + .168 * b;
+            float newb = .292 * r + .534 * g + .131 * b;
+
             if (newr >255){
               newr = 255;
             }
@@ -160,10 +154,13 @@ void draw(){
             if (newb >255){
               newb = 255;
             }
-  
-            pixels[j*width+i] = color(newr,newg,newb);
+            
+           
+          pixels[j*width+i] = color(newr,newg,newb);
                        
-         
+          colorMode(HSB);
+          pixels[j*width+i] = color(hue(pixels[j*width+i]),saturation(pixels[j*width+i])+20,brightness(pixels[j*width+i]));
+  
            
           }
         }
