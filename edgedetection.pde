@@ -1,5 +1,5 @@
 //EDGE DETECTION WITH loaded IMAGE
-//press e to edge, p to pencil, c to color,q to quit all unnatural modes
+//press e to edge, p to pencil, c to color, g to grayscale, b to blob, q to quit all unnatural modes
 PImage img;
 final int THRESHOLD = 35;
 float[][][] orig;
@@ -14,12 +14,42 @@ void setup(){
  pencil = false;
  edge = false;
  colorpencil = false;
+ gray = false;
  
 }
 void draw(){
   image(img,0, 0);
   loadPixels();
-  if (edge || pencil || colorpencil){
+  
+    if (gray){
+     
+        for (int i = 1; i < width -1; i++){
+          for (int j = 1; j < height-1; j++){            
+             colorMode(RGB);    
+            float r = red( pixels[j*width+i]);
+            float g = green( pixels[j*width+i]);     
+            float b = blue( pixels[j*width+i]);
+            
+            float newr = .3* r + .59 * g + .11 * b;        
+            float newg = .3 * r + .59* g + .11 * b;
+            float newb = .3 * r + .59 * g + .11 * b;
+            
+            if (newr >255){
+              newr = 255;
+            }
+            if (newg >255){
+              newg = 255;
+            }
+            if (newb >255){
+              newb = 255;
+            }
+  
+            pixels[j*width+i] = color(newr,newg,newb);
+            
+          }
+      }     
+    }
+  else if (edge || pencil || colorpencil){
     for (int i = 1; i < img.width -1; i++){
       for (int j = 1; j < img.height-1; j++){
         orig[i][j][0] = get(i,j) >> 16 & 0xFF;
@@ -61,12 +91,13 @@ void draw(){
 }
 
 void keyPressed(){
-     if (key =='e' || key == 'E'){
+ if (key =='e' || key == 'E'){
     if (edge){
       edge = false;
     }else{
       edge = true;
     }
+    gray = false;
   }
   if (key=='p' || key =='P'){
     if (pencil){
@@ -75,21 +106,27 @@ void keyPressed(){
     else{
       pencil = true;
     }
+    gray = false;
   }
   if (key =='c' || key == 'C'){
     if (colorpencil)
       colorpencil = false;
     else
       colorpencil = true;
+    gray = false;
   }
   if (key == 'q' || key == 'Q'){
     edge = false;
     colorpencil = false;
     pencil = false;
+    gray = false;
   }
   
   if (key =='g'|| key == 'G'){
-    
+    edge = false;
+    colorpencil = false;
+    pencil = false;
+    gray = true;
     
   }
   

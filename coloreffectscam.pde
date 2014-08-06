@@ -134,7 +134,7 @@ void draw(){
     else if (sepia){   
         for (int i = 0; i < width; i++){
           for (int j = 0; j < height; j++){
-
+  
             colorMode(RGB);   
             
             float r = red( pixels[j*width+i]);
@@ -160,7 +160,7 @@ void draw(){
                        
           colorMode(HSB);
           pixels[j*width+i] = color(hue(pixels[j*width+i]),saturation(pixels[j*width+i])+20,brightness(pixels[j*width+i]));
-  
+           colorMode(RGB);  
            
           }
         }
