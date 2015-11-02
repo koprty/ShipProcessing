@@ -1,9 +1,8 @@
 ShipProcessing
 ==============
-This repo is to store all my TA projects from the SHIP CSTUY 2014.
+This repo is to store all my TA projects from the CSTUY SHIP 2014.
 
 To Run: Download [Processing (Java)](https://www.processing.org)
-
 - Clone Repo
 - Run processing and open the appropriate pde files in the folder. 
 
