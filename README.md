@@ -4,7 +4,8 @@ This repo is to store all my TA projects from the SHIP CSTUY 2014.
 
 To Run: Download [Processing (Java)](https://www.processing.org)
 
-Run processing and open the appropriate pde files in the folder. 
+- Clone Repo
+- Run processing and open the appropriate pde files in the folder. 
 
 ## The Different Files
 * Color Effects 
